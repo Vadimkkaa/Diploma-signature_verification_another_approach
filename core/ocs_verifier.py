@@ -25,7 +25,7 @@ class OCSVMVerifier:
         self.model = OneClassSVM(kernel='rbf', gamma='scale', nu=0.1)
         self.model.fit(feature_vectors)
 
-    def verify_with_voting(self, new_signature_image, reference_images, comparator, threshold=0.8):
+    def verify_with_voting(self, new_signature_image, reference_images, comparator, threshold=0.75):
         """
         Сравнивает новую подпись с каждой из эталонных, формирует N сравнений,
         передаёт каждый вектор в модель и голосует.

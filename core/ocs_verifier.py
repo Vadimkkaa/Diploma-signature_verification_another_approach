@@ -9,7 +9,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 class OCSVMVerifier:
     """
     Класс для обучения и верификации на основе сравнения подписи с эталонными.
-    Работает строго по статье: обучение на парах, проверка через голосование.
+    обучение на парах, проверка через голосование.
     """
 
     def __init__(self, model_dir="storage/models"):
@@ -49,7 +49,7 @@ class OCSVMVerifier:
             votes.append(result)
 
         count_positive = sum(1 for v in votes if v == 1)
-        if count_positive >= int(len(votes) * threshold):  # ≥80% голосов "за"
+        if count_positive >= int(len(votes) * threshold):  # ≥75% голосов "за"
             return 1
         else:
             return -1

@@ -251,18 +251,24 @@ class MainWindow(QMainWindow):
                 self.statusBar.showMessage("❌ Эталонные подписи не найдены")
                 return
 
-
-            result = verifier.verify_with_voting(
+            result, metrics = verifier.verify_with_voting(
                 new_signature_image=normalized,
                 reference_images=reference_images,
-                comparator=comparator
+                comparator=comparator,
+                return_metrics=True
             )
 
             # 5. Вывод результата
             if result == 1:
                 self.result_label.setText("✅ Подпись ПРИНЯТА")
+
             else:
                 self.result_label.setText("❌ Подпись ОТКЛОНЕНА")
+
+            percent = metrics["votes_for"] / metrics["total"] * 100
+            text = f"""Проголосовало "За": {metrics['votes_for']} из {metrics['total']} = {percent:.2f}%
+            Порог принятия: ≥ {int(metrics['threshold'] * 100)}%"""
+            self.metrics_text.setText(text)
 
             self.statusBar.showMessage("✅ Проверка завершена")
 

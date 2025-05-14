@@ -25,7 +25,7 @@ class OCSVMVerifier:
         self.model = OneClassSVM(kernel='rbf', gamma='scale', nu=0.1)
         self.model.fit(feature_vectors)
 
-    def verify_with_voting(self, new_signature_image, reference_images, comparator, threshold=0.75):
+    def verify_with_voting(self, new_signature_image, reference_images, comparator, threshold=0.75, return_metrics=False):
         """
         Сравнивает новую подпись с каждой из эталонных, формирует N сравнений,
         передаёт каждый вектор в модель и голосует.
@@ -49,10 +49,14 @@ class OCSVMVerifier:
             votes.append(result)
 
         count_positive = sum(1 for v in votes if v == 1)
-        if count_positive >= int(len(votes) * threshold):  # ≥75% голосов "за"
-            return 1
+        if return_metrics:
+            return (1 if count_positive >= int(len(votes) * threshold) else -1), {
+                "votes_for": count_positive,
+                "total": len(votes),
+                "threshold": threshold
+            }
         else:
-            return -1
+            return 1 if count_positive >= int(len(votes) * threshold) else -1  # ≥75% голосов "за"
 
     def save_model(self, user_id):
         """

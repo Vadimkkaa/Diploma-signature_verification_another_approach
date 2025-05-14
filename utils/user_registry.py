@@ -31,17 +31,14 @@ class UserRegistry:
             ''')
             conn.commit()
 
-    def add_user(self, user_id, last_name, first_name, middle_name, gender, birth_date):
-        """
-        Добавляет одного пользователя.
-        """
+    def add_user(self, last_name, first_name, middle_name, gender, birth_date):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT OR REPLACE INTO users (
-                    user_id, last_name, first_name, middle_name, gender, birth_date
-                ) VALUES (?, ?, ?, ?, ?, ?)
-            ''', (user_id, last_name, first_name, middle_name, gender, birth_date))
+                INSERT INTO users (
+                    last_name, first_name, middle_name, gender, birth_date
+                ) VALUES (?, ?, ?, ?, ?)
+            ''', (last_name, first_name, middle_name, gender, birth_date))
             conn.commit()
 
     def get_user(self, user_id):
@@ -54,20 +51,17 @@ class UserRegistry:
             return cursor.fetchone()
 
     def list_users(self):
-        """
-        Возвращает список всех пользователей.
-        """
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM users")
-            return cursor.fetchall()
+            rows = cursor.fetchall()
+            for row in rows:
+                print(row)
+            return rows
 
     def generate_users(self, count=20):
-        """
-        Генерирует и сохраняет N пользователей с реалистичными ФИО, полом и датой рождения.
-        """
         fake = Faker("ru_RU")
-        for user_id in range(1, count + 1):
+        for _ in range(count):
             gender = random.choice(["М", "Ж"])
             if gender == "М":
                 first = fake.first_name_male()
@@ -79,6 +73,37 @@ class UserRegistry:
                 middle = fake.middle_name_female()
 
             birth_date = fake.date_of_birth(minimum_age=18, maximum_age=60).strftime("%Y-%m-%d")
-            self.add_user(user_id, last, first, middle, gender, birth_date)
+            self.add_user(last, first, middle, gender, birth_date)
 
         print(f"✅ Сгенерировано {count} пользователей.")
+
+    def get_all_users(self):
+        """
+        Возвращает список словарей с полными данными пользователей.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT user_id, last_name, first_name, middle_name FROM users")
+            rows = cursor.fetchall()
+            return [
+                {
+                    "user_id": row[0],
+                    "last_name": row[1],
+                    "first_name": row[2],
+                    "middle_name": row[3]
+                }
+                for row in rows
+            ]
+
+    def clear_users(self, reset_ids=True):
+        """
+        Удаляет всех пользователей из таблицы users.
+        Если reset_ids=True, сбрасывает автоинкремент user_id.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users")
+            if reset_ids:
+                cursor.execute("DELETE FROM sqlite_sequence WHERE name='users'")
+            conn.commit()
+        print("🧹 Все пользователи удалены.")

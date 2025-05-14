@@ -9,5 +9,9 @@ import cv2
 import os
 import sqlite3
 
-logger = ResultsLogger();
-logger.view_results();
+
+ur = UserRegistry()
+ur.list_users()
+
+
+

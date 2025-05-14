@@ -26,7 +26,7 @@ forgery_files = sorted([
     if f.startswith(f"forgeries_{user_id}_")
 ])
 
-# Используем 10 оригинальных для обучения, 14 оставшихся — на тест (берём только 6, как раньше)
+# Используем 15 оригинальных для обучения, 9 оставшихся — на тест
 train_files = original_files[:15]
 test_originals = original_files[15:]  # оставшиеся оригиналы
 test_forgeries = forgery_files        # 24 подделки

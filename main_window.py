@@ -33,6 +33,107 @@ class MainWindow(QMainWindow):
         self.statusBar = QStatusBar()
         self.setStatusBar(self.statusBar)
 
+        self.translations = {
+            "Русский": {
+                "tabs": ["Проверка подписи", "Пользователи", "История проверок", "Настройки"],
+                "verify_title": "Выберите изображение с подписью:",
+                "verify_button": "Загрузить файл",
+                "preview_placeholder": "Изображение не выбрано",
+                "select_user": "Выберите пользователя:",
+                "check_button": "Проверить подпись",
+                "result_label": "Результат:",
+                "metrics_label": "Технические метрики:",
+                "clear_button": "Очистить результат",
+                "save_status": "✅ Настройки сохранены",
+                "Accepted": "✅ Подпись ПРИНЯТА",
+                "Rejected": "❌ Подпись ОТКЛОНЕНА",
+                "Finished": "✅ Проверка завершена",
+                "tab_user": "Пользователи",
+                "user_input": "Введите данные пользователя:",
+                "last_name": "Фамилия",
+                "first_name": "Имя",
+                "middle_name": "Отчество",
+                "gender_male": "мужской",
+                "gender_female": "женский",
+                "upload_signatures": "Загрузите эталонные подписи:",
+                "select_folder": "Выбрать папку",
+                "train_model": "Обучить модель",
+                "delete_user": "Удаление пользователя:",
+                "delete_btn": "Удалить пользователя",
+                "tab_history": "История проверок",
+                "filter_by_user": "Фильтр по пользователю:",
+                "filter_by_id": "Фильтр по ID пользователя:",
+                "filter_id_placeholder": "Введите user_id",
+                "apply_filter": "Применить фильтр по ID",
+                "refresh_table": "Обновить таблицу",
+                "tab_settings": "Настройки",
+                "interface_language": "Язык интерфейса:",
+                "theme": "Тема оформления:",
+                "save_settings": "Сохранить настройки",
+                "theme_light": "Светлая",
+                "theme_dark": "Тёмная",
+                "filter_user": "Фильтр по пользователю:",
+                "filter_id": "Фильтр по ID пользователя:",
+                "all_users": "Все пользователи",
+                "headers": ["ID", "Пользователь", "Результат", "Голоса 'за'", "Порог", "Дата/время"],
+                "accepted": "✅ Принята",
+                "rejected": "❌ Отклонена",
+                "id_placeholder": "Введите user_id",
+                "apply_id_filter": "Применить фильтр по ID",
+                "refresh_btn": "Обновить таблицу"
+
+            },
+            "English": {
+                "tabs": ["Signature Verification", "Users", "Verification History", "Settings"],
+                "verify_title": "Select a signature image:",
+                "verify_button": "Load File",
+                "preview_placeholder": "No image selected",
+                "select_user": "Select user:",
+                "check_button": "Verify Signature",
+                "result_label": "Result:",
+                "metrics_label": "Technical Metrics:",
+                "clear_button": "Clear Result",
+                "save_status": "✅ Settings saved",
+                "Accepted": "✅ Signature ACCEPTED",
+                "Rejected": "❌ Signature REJECTED",
+                "Finished": "✅ Verification completed",
+                "tab_user": "Users",
+                "user_input": "Enter user data:",
+                "last_name": "Last Name",
+                "first_name": "First Name",
+                "middle_name": "Middle Name",
+                "gender_male": "male",
+                "gender_female": "female",
+                "upload_signatures": "Upload reference signatures:",
+                "select_folder": "Select Folder",
+                "train_model": "Train Model",
+                "delete_user": "Delete user:",
+                "delete_btn": "Delete User",
+                "tab_history": "Verification History",
+                "filter_by_user": "Filter by user:",
+                "filter_by_id": "Filter by user ID:",
+                "filter_id_placeholder": "Enter user_id",
+                "apply_filter": "Apply ID filter",
+                "refresh_table": "Refresh table",
+                "tab_settings": "Settings",
+                "interface_language": "Interface language:",
+                "theme": "Theme:",
+                "save_settings": "Save settings",
+                "theme_light": "Light",
+                "theme_dark": "Dark",
+                "filter_user": "Filter by user:",
+                "filter_id": "Filter by user ID:",
+                "all_users": "All users",
+                "headers": ["ID", "User", "Result", "Votes 'for'", "Threshold", "Date/Time"],
+                "accepted": "✅ Accepted",
+                "rejected": "❌ Rejected",
+                "id_placeholder": "Enter user_id",
+                "apply_id_filter": "Apply ID filter",
+                "refresh_btn": "Refresh table"
+
+            }
+        }
+
         self.tabs = QTabWidget()
         self.init_tabs()
         self.setCentralWidget(self.tabs)
@@ -58,54 +159,12 @@ class MainWindow(QMainWindow):
         self.theme_combo.setCurrentText(settings["theme"])
         self.apply_theme()
 
-        self.translations = {
-            "Русский": {
-                "tab_verification": "Проверка подписи",
-                "tab_user": "Пользователи",
-                "tab_history": "История проверок",
-                "tab_settings": "Настройки",
-                "load_file": "Загрузить файл",
-                "check_signature": "Проверить подпись",
-                "clear_result": "Очистить результат",
-                "result": "Результат:",
-                "metrics": "Технические метрики:",
-                "user_select": "Выберите пользователя:",
-                "add_user": "Введите данные пользователя:",
-                "delete_user": "Удаление пользователя:",
-                "train_model": "Обучить модель",
-                "select_folder": "Выбрать папку",
-                "filter_user": "Фильтр по пользователю:",
-                "filter_id": "Фильтр по ID пользователя:",
-                "apply_filter": "Применить фильтр по ID",
-                "refresh_table": "Обновить таблицу",
-                "settings_save": "Сохранить настройки",
-                "theme_label": "Тема оформления:",
-                "language_label": "Язык интерфейса:"
-            },
-            "English": {
-                "tab_verification": "Signature Verification",
-                "tab_user": "Users",
-                "tab_history": "Verification History",
-                "tab_settings": "Settings",
-                "load_file": "Load File",
-                "check_signature": "Verify Signature",
-                "clear_result": "Clear Result",
-                "result": "Result:",
-                "metrics": "Technical Metrics:",
-                "user_select": "Select User:",
-                "add_user": "Enter User Details:",
-                "delete_user": "Delete User:",
-                "train_model": "Train Model",
-                "select_folder": "Choose Folder",
-                "filter_user": "Filter by User:",
-                "filter_id": "Filter by User ID:",
-                "apply_filter": "Apply ID Filter",
-                "refresh_table": "Refresh Table",
-                "settings_save": "Save Settings",
-                "theme_label": "Theme:",
-                "language_label": "Interface Language:"
-            }
-        }
+
+
+        self.result_text_label = QLabel()
+        self.metrics_label = QLabel()
+
+        self.apply_language()
 
     def init_tabs(self):
         self.tab_verification = QWidget()
@@ -144,11 +203,15 @@ class MainWindow(QMainWindow):
         self.check_btn.clicked.connect(self.verify_signature)  # ✅ подключаем после создания
         layout.addWidget(self.check_btn)
 
-        layout.addWidget(QLabel("Результат:"))
+        self.result_text_label = QLabel()  # ← просто пустой
+        layout.addWidget(self.result_text_label)
+
         self.result_label = QLabel("-")
         layout.addWidget(self.result_label)
 
-        layout.addWidget(QLabel("Технические метрики:"))
+        self.metrics_label = QLabel()
+        layout.addWidget(self.metrics_label)
+
         self.metrics_text = QTextEdit()
         layout.addWidget(self.metrics_text)
 
@@ -161,7 +224,10 @@ class MainWindow(QMainWindow):
     def init_user_tab(self):
         layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("Введите данные пользователя:"))
+        # Заголовок: Введите данные пользователя
+        self.user_input_label = QLabel("Введите данные пользователя:")
+        layout.addWidget(self.user_input_label)
+
         self.last_name_input = QLineEdit()
         self.last_name_input.setPlaceholderText("Фамилия")
         layout.addWidget(self.last_name_input)
@@ -182,7 +248,10 @@ class MainWindow(QMainWindow):
         self.gender_combo.addItems(["мужской", "женский"])
         layout.addWidget(self.gender_combo)
 
-        layout.addWidget(QLabel("Загрузите эталонные подписи:"))
+        # Загрузка подписей
+        self.signature_folder_label = QLabel("Загрузите эталонные подписи:")
+        layout.addWidget(self.signature_folder_label)
+
         self.train_btn = QPushButton("Выбрать папку")
         layout.addWidget(self.train_btn)
 
@@ -192,7 +261,9 @@ class MainWindow(QMainWindow):
         self.train_status = QTextEdit()
         layout.addWidget(self.train_status)
 
-        layout.addWidget(QLabel("Удаление пользователя:"))
+        # Удаление пользователя
+        self.delete_user_label = QLabel("Удаление пользователя:")
+        layout.addWidget(self.delete_user_label)
 
         self.delete_user_combo = QComboBox()
         layout.addWidget(self.delete_user_combo)
@@ -206,12 +277,15 @@ class MainWindow(QMainWindow):
     def init_history_tab(self):
         layout = QVBoxLayout()
 
-        layout.addWidget(QLabel("Фильтр по пользователю:"))
+        self.history_user_label = QLabel("Фильтр по пользователю:")
+        layout.addWidget(self.history_user_label)
+
         self.history_user_combo = QComboBox()
         layout.addWidget(self.history_user_combo)
 
-        # Фильтр по user_id
-        layout.addWidget(QLabel("Фильтр по ID пользователя:"))
+        self.user_id_label = QLabel("Фильтр по ID пользователя:")
+        layout.addWidget(self.user_id_label)
+
         self.user_id_input = QLineEdit()
         self.user_id_input.setPlaceholderText("Введите user_id")
         layout.addWidget(self.user_id_input)
@@ -232,29 +306,33 @@ class MainWindow(QMainWindow):
     def init_settings_tab(self):
         layout = QFormLayout()
 
-
         self.language_combo = QComboBox()
         self.language_combo.addItems(["Русский", "English"])
 
         self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["Светлая", "Тёмная"])
+        self.theme_combo.addItem("Светлая", "light")  # userData = "light"
+        self.theme_combo.addItem("Тёмная", "dark")  # userData = "dark"
 
-        layout.addRow("Язык интерфейса:", self.language_combo)
-        layout.addRow("Тема оформления:", self.theme_combo)
+        self.language_label = QLabel("Язык интерфейса:")
+        self.theme_label = QLabel("Тема оформления:")
+
+        layout.addRow(self.language_label, self.language_combo)
+        layout.addRow(self.theme_label, self.theme_combo)
 
         self.save_settings_btn = QPushButton("Сохранить настройки")
         layout.addRow(self.save_settings_btn)
 
         self.tab_settings.setLayout(layout)
-
         self.save_settings_btn.clicked.connect(self.save_ui_config)
 
     def save_ui_config(self):
         language = self.language_combo.currentText()
         theme = self.theme_combo.currentText()
         self.config.save_config(language, theme)
-        self.statusBar.showMessage("✅ Настройки сохранены")
         self.apply_theme()
+        self.apply_language()
+        t = self.translations.get(language, self.translations["Русский"])
+        self.statusBar.showMessage(t["save_status"])
 
     def load_image(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -533,45 +611,45 @@ class MainWindow(QMainWindow):
             self.delete_user_combo.addItem(full_name)
 
     def load_verification_history(self):
-
         logger = ResultsLogger()
         records = logger.get_verification_logs()
+
+        # Получаем язык и переводы
+        lang = self.language_combo.currentText()
+        t = self.translations.get(lang, self.translations["Русский"])
 
         # Получаем пользователей
         users = self.user_registry.get_all_users()
         user_map = {u["user_id"]: f"{u['last_name']} {u['first_name']} {u['middle_name']}" for u in users}
         name_to_id = {v: k for k, v in user_map.items()}
 
-        # Заполняем фильтр (однократно)
-        if self.history_user_combo.count() == 0:
-            self.history_user_combo.addItem("Все пользователи")
-            for name in sorted(name_to_id.keys()):
-                self.history_user_combo.addItem(name)
+        # 🔁 Обновляем список каждый раз (включая строку "Все пользователи")
+        current_selected = self.history_user_combo.currentText()
+        self.history_user_combo.blockSignals(True)
+        self.history_user_combo.clear()
+        self.history_user_combo.addItem(t["all_users"])
+        for name in sorted(name_to_id.keys()):
+            self.history_user_combo.addItem(name)
+        self.history_user_combo.setCurrentText(current_selected)
+        self.history_user_combo.blockSignals(False)
 
-        # Получаем выбранного пользователя
+        # 🔍 Фильтрация по выбранному пользователю
         selected_name = self.history_user_combo.currentText()
-        if selected_name != "Все пользователи":
+        if selected_name != t["all_users"]:
             selected_id = name_to_id.get(selected_name)
-            # 🔍 Фильтруем по user_id
             records = [r for r in records if r[1] == selected_id]
 
-        # Очистка таблицы
+        # Очистка и настройка таблицы
         self.history_table.clearContents()
         self.history_table.setRowCount(0)
-
-        # Настройка колонок
         self.history_table.setColumnCount(6)
-        self.history_table.setHorizontalHeaderLabels(
-            ["ID", "Пользователь", "Результат", "Голоса 'за'", "Порог", "Дата/время"]
-        )
-
+        self.history_table.setHorizontalHeaderLabels(t["headers"])
         self.history_table.setRowCount(len(records))
 
-        # Заполняем строки
         for row_idx, record in enumerate(records):
             log_id, uid, result, votes_for, threshold, timestamp = record
             fio = user_map.get(uid, f"user_{uid}")
-            verdict = "✅ Принята" if result == 1 else "❌ Отклонена"
+            verdict = t["accepted"] if result == 1 else t["rejected"]
 
             self.history_table.setItem(row_idx, 0, QTableWidgetItem(str(uid)))
             self.history_table.setItem(row_idx, 1, QTableWidgetItem(fio))
@@ -617,39 +695,137 @@ class MainWindow(QMainWindow):
             self.history_table.setItem(row_idx, 5, QTableWidgetItem(timestamp))
 
     def apply_theme(self):
-        theme = self.theme_combo.currentText()
-        if theme == "Тёмная":
+        theme = self.theme_combo.itemData(self.theme_combo.currentIndex())
+        if theme == "dark":
             self.setStyleSheet("""
-                QWidget {
-                    background-color: #2e2e2e;
-                    color: white;
-                }
-                QLineEdit, QTextEdit, QComboBox, QDateEdit {
-                    background-color: #3c3c3c;
-                    color: white;
-                    border: 1px solid #555;
-                }
-                QPushButton {
-                    background-color: #444;
-                    color: white;
-                    border: 1px solid #666;
-                }
-                QTabWidget::pane {
-                    border: 1px solid #666;
-                }
-                QTabBar::tab {
-                    background: #3c3c3c;
-                    color: white;
-                    border: 1px solid #555;
-                    padding: 5px;
-                }
-                QTabBar::tab:selected {
-                    background: #5c5c5c;
-                    border-bottom: 2px solid #00bcd4;
-                }
-            """)
+                   QWidget {
+                       background-color: #2e2e2e;
+                       color: white;
+                   }
+                   QLineEdit, QTextEdit, QComboBox, QDateEdit {
+                       background-color: #3c3c3c;
+                       color: white;
+                       border: 1px solid #555;
+                   }
+                   QPushButton {
+                       background-color: #444;
+                       color: white;
+                       border: 1px solid #666;
+                   }
+                   QTabWidget::pane {
+                       border: 1px solid #666;
+                   }
+                   QTabBar::tab {
+                       background: #3c3c3c;
+                       color: white;
+                       border: 1px solid #555;
+                       padding: 5px;
+                   }
+                   QTabBar::tab:selected {
+                       background: #5c5c5c;
+                       border-bottom: 2px solid #00bcd4;
+                   }
+                   QHeaderView::section {
+                       background-color: #444;
+                       color: white;
+                       padding: 4px;
+                       border: 1px solid #666;
+                   }
+                   QTableWidget {
+                       gridline-color: #666;
+                       background-color: #2e2e2e;
+                       color: white;
+                       selection-background-color: #555;
+                       selection-color: white;
+                   }
+                   QHeaderView::section {
+                       background-color: #444;
+                       color: white;
+                       border: 1px solid #666;
+                   }
+                   QTableCornerButton::section {
+                       background-color: #444;
+                       border: 1px solid #666;
+                   }
+               """)
         else:
             self.setStyleSheet("")
+
+    def apply_language(self):
+        lang = self.language_combo.currentText()
+        t = self.translations.get(lang, self.translations["Русский"])
+
+        self.tabs.setTabText(0, t["tabs"][0])
+        self.tabs.setTabText(1, t["tabs"][1])
+        self.tabs.setTabText(2, t["tabs"][2])
+        self.tabs.setTabText(3, t["tabs"][3])
+
+        self.load_btn.setText(t["verify_button"])
+        self.check_btn.setText(t["check_button"])
+        self.clear_btn.setText(t["clear_button"])
+
+        self.result_label.setText("-")
+        self.metrics_text.setPlaceholderText(t["metrics_label"])
+
+        self.statusBar.showMessage(t["save_status"])
+
+        self.tab_verification.layout().itemAt(0).widget().setText(t["verify_title"])
+        self.tab_verification.layout().itemAt(3).widget().setText(t["select_user"])
+        self.tab_verification.layout().itemAt(7).widget().setText(t["result_label"])
+        self.tab_verification.layout().itemAt(9).widget().setText(t["metrics_label"])
+
+        self.preview_label.setText(t["preview_placeholder"])
+
+        self.result_text_label.setText(t["result_label"])
+        self.metrics_label.setText(t["metrics_label"])
+        self.theme_combo.setItemText(0, t.get("theme_light", "Светлая"))
+        self.theme_combo.setItemText(1, t.get("theme_dark", "Тёмная"))
+        self.apply_language_user_tab(t)
+        self.apply_language_history_tab(t)
+        self.apply_language_settings_tab(t)
+        self.statusBar.clearMessage()
+        self.load_verification_history()
+
+    def apply_language_user_tab(self, t):
+        self.tabs.setTabText(1, t["tab_user"])  # Название вкладки
+
+        self.user_input_label.setText(t["user_input"])
+        self.last_name_input.setPlaceholderText(t["last_name"])
+        self.first_name_input.setPlaceholderText(t["first_name"])
+        self.middle_name_input.setPlaceholderText(t["middle_name"])
+        self.birth_date_input.setDisplayFormat("dd/MM/yyyy")
+        self.gender_combo.setItemText(0, t["gender_male"])
+        self.gender_combo.setItemText(1, t["gender_female"])
+
+        self.signature_folder_label.setText(t["upload_signatures"])
+        self.train_btn.setText(t["select_folder"])
+        self.train_confirm_btn.setText(t["train_model"])
+        self.delete_user_label.setText(t["delete_user"])
+        self.delete_user_btn.setText(t["delete_btn"])
+
+    def apply_language_history_tab(self, t):
+        self.tabs.setTabText(2, t["tabs"][2])  # Название вкладки
+
+        self.history_user_combo.blockSignals(True)
+        self.history_user_combo.setItemText(0, t["all_users"])  # Обновляем "Все пользователи"
+        self.history_user_combo.blockSignals(False)
+
+        self.tab_history.layout().itemAt(0).widget().setText(t["filter_user"])
+        self.tab_history.layout().itemAt(2).widget().setText(t["filter_id"])
+        self.user_id_input.setPlaceholderText(t["id_placeholder"])
+        self.apply_id_filter_btn.setText(t["apply_id_filter"])
+        self.refresh_history_btn.setText(t["refresh_btn"])
+
+        # Если уже отображена таблица — обновить заголовки:
+        self.history_table.setHorizontalHeaderLabels(t["headers"])
+
+    def apply_language_settings_tab(self, t):
+        self.tabs.setTabText(3, t["tab_settings"])
+        self.language_label.setText(t["interface_language"])
+        self.theme_label.setText(t["theme"])
+        self.save_settings_btn.setText(t["save_settings"])
+        self.theme_combo.setItemText(0, t["theme_light"])
+        self.theme_combo.setItemText(1, t["theme_dark"])
 
 
 if __name__ == '__main__':

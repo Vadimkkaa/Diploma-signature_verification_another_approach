@@ -10,8 +10,8 @@ import os
 import sqlite3
 
 
-ur = UserRegistry()
-ur.list_users()
+ResultsLogger().delete_verification_by_user(1)
+
 
 
 

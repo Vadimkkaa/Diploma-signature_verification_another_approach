@@ -14,7 +14,7 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 originals_path = os.path.join(BASE_DIR, "storage", "data", "CEDAR", "originals")
 forgeries_path = os.path.join(BASE_DIR, "storage", "data", "CEDAR", "forgeries")
 
-user_id = "5"
+user_id = "21"
 
 original_files = sorted([
     f for f in os.listdir(originals_path)

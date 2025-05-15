@@ -31,7 +31,7 @@ class UserRegistry:
             ''')
             conn.commit()
 
-    def add_user(self, last_name, first_name, middle_name, gender, birth_date):
+    def add_user(self, last_name, first_name, middle_name, gender, birth_date, return_id=False):
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.cursor()
             cursor.execute('''
@@ -40,7 +40,8 @@ class UserRegistry:
                 ) VALUES (?, ?, ?, ?, ?)
             ''', (last_name, first_name, middle_name, gender, birth_date))
             conn.commit()
-
+            if return_id:
+                return cursor.lastrowid
     def get_user(self, user_id):
         """
         Возвращает информацию о пользователе по ID.
@@ -107,3 +108,9 @@ class UserRegistry:
                 cursor.execute("DELETE FROM sqlite_sequence WHERE name='users'")
             conn.commit()
         print("🧹 Все пользователи удалены.")
+
+    def delete_user(self, user_id):
+        with sqlite3.connect(self.db_path) as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
+            conn.commit()

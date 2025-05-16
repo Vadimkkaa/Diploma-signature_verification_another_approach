@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QLabel,
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel,
     QPushButton, QLineEdit, QTextEdit, QFileDialog, QComboBox,
     QDateEdit, QTableWidget, QFormLayout, QStatusBar, QTabWidget,
-    QTableWidgetItem
+    QTableWidgetItem, QGroupBox
 )
 
 from PyQt5.QtGui import QPixmap
@@ -16,6 +16,9 @@ from core.ocs_verifier import OCSVMVerifier
 from core.signature_comparator import SignatureComparator
 from utils.results_logger import ResultsLogger
 from core.signature_loader import SignatureLoader
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QHeaderView
+
 
 from utils.config_manager import ConfigManager
 
@@ -80,7 +83,10 @@ class MainWindow(QMainWindow):
                 "rejected": "❌ Отклонена",
                 "id_placeholder": "Введите user_id",
                 "apply_id_filter": "Применить фильтр по ID",
-                "refresh_btn": "Обновить таблицу"
+                "refresh_btn": "Обновить таблицу",
+                "votes_for": 'Проголосовало "За":',
+                "out_of": 'из',
+                "threshold_label": 'Порог принятия:',
 
             },
             "English": {
@@ -129,7 +135,10 @@ class MainWindow(QMainWindow):
                 "rejected": "❌ Rejected",
                 "id_placeholder": "Enter user_id",
                 "apply_id_filter": "Apply ID filter",
-                "refresh_btn": "Refresh table"
+                "refresh_btn": "Refresh table",
+                "votes_for": 'Voted "For":',
+                "out_of": 'out of',
+                "threshold_label": 'Acceptance threshold:',
 
             }
         }
@@ -159,11 +168,6 @@ class MainWindow(QMainWindow):
         self.theme_combo.setCurrentText(settings["theme"])
         self.apply_theme()
 
-
-
-        self.result_text_label = QLabel()
-        self.metrics_label = QLabel()
-
         self.apply_language()
 
     def init_tabs(self):
@@ -183,146 +187,278 @@ class MainWindow(QMainWindow):
         self.tabs.addTab(self.tab_settings, "Настройки")
 
     def init_verification_tab(self):
-        layout = QVBoxLayout()
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 15, 20, 5)
+        main_layout.setSpacing(20)
 
-        layout.addWidget(QLabel("Выберите изображение с подписью:"))
+        # === БЛОК 1: Загрузка изображения ===
+        image_group = QGroupBox()
+        image_layout = QVBoxLayout()
+        image_layout.setSpacing(10)
+
+        self.verify_title_label = QLabel("Выберите изображение с подписью:")
+        image_layout.addWidget(self.verify_title_label)
+
         self.load_btn = QPushButton("Загрузить файл")
-        layout.addWidget(self.load_btn)
+        self.load_btn.setIcon(QIcon("icons/folder.png"))
+        self.load_btn.setFixedHeight(40)
+        image_layout.addWidget(self.load_btn, alignment=Qt.AlignLeft)
 
         self.preview_label = QLabel("Изображение не выбрано")
-        self.preview_label.setFixedSize(300, 150)
-        self.preview_label.setStyleSheet("border: 1px solid gray;")
+        self.preview_label.setObjectName("preview_label")  # Для тёмной темы
+        self.preview_label.setFixedSize(500, 250)
         self.preview_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(self.preview_label)
 
-        layout.addWidget(QLabel("Выберите пользователя:"))
+        image_layout.addWidget(self.preview_label, alignment=Qt.AlignCenter)
+
+        image_group.setLayout(image_layout)
+        main_layout.addWidget(image_group)
+
+        # === БЛОК 2: Пользователь и кнопка ===
+        user_group = QGroupBox()
+        v_user = QVBoxLayout()
+        v_user.setSpacing(15)
+        v_user.setAlignment(Qt.AlignTop)
+
+        self.select_user_label = QLabel("Выберите пользователя:")
+        v_user.addWidget(self.select_user_label)
+
         self.user_combo = QComboBox()
-        layout.addWidget(self.user_combo)
+        self.user_combo.setFixedHeight(30)
+        self.user_combo.setFixedWidth(400)
+        self.user_combo.view().setMinimumWidth(400)
+        h_combo = QHBoxLayout()
+        h_combo.addStretch()
+        h_combo.addWidget(self.user_combo)
+        h_combo.addStretch()
+        v_user.addLayout(h_combo)
+
+        # Отступ между комбобоксом и кнопкой
+        v_user.addSpacing(10)
 
         self.check_btn = QPushButton("Проверить подпись")
-        self.check_btn.clicked.connect(self.verify_signature)  # ✅ подключаем после создания
-        layout.addWidget(self.check_btn)
+        self.check_btn.setIcon(QIcon("icons/check.png"))
+        self.check_btn.setFixedHeight(36)
+        self.check_btn.setMinimumWidth(240)
+        self.check_btn.setMaximumWidth(300)
+        self.check_btn.setStyleSheet("font-weight: bold;")
+        self.check_btn.clicked.connect(self.verify_signature)
 
-        self.result_text_label = QLabel()  # ← просто пустой
-        layout.addWidget(self.result_text_label)
+        h_btn = QHBoxLayout()
+        h_btn.addStretch()
+        h_btn.addWidget(self.check_btn)
+        h_btn.addStretch()
+        v_user.addLayout(h_btn)
+
+        user_group.setLayout(v_user)
+        main_layout.addWidget(user_group)
+
+        # === БЛОК 3: Результат ===
+        result_group = QGroupBox()
+        result_layout = QVBoxLayout()
+        result_layout.setSpacing(10)
+
+        self.result_text_label = QLabel("Результат:")
+        result_layout.addWidget(self.result_text_label)
 
         self.result_label = QLabel("-")
-        layout.addWidget(self.result_label)
-
-        self.metrics_label = QLabel()
-        layout.addWidget(self.metrics_label)
+        result_layout.addWidget(self.result_label)
 
         self.metrics_text = QTextEdit()
-        layout.addWidget(self.metrics_text)
+        self.metrics_text.setFixedHeight(100)
+        self.metrics_text.setPlaceholderText("Технические метрики:")
+        result_layout.addWidget(self.metrics_text)
 
         self.clear_btn = QPushButton("Очистить результат")
+        self.clear_btn.setIcon(QIcon("icons/clear.png"))
+        self.clear_btn.setFixedWidth(220)
+        self.clear_btn.setFixedHeight(35)
+        self.clear_btn.setStyleSheet("font-weight: bold;")
         self.clear_btn.clicked.connect(self.clear_result)
-        layout.addWidget(self.clear_btn)
+        result_layout.addWidget(self.clear_btn, alignment=Qt.AlignCenter)
 
-        self.tab_verification.setLayout(layout)
+        result_group.setLayout(result_layout)
+        main_layout.addWidget(result_group)
+
+        self.tab_verification.setLayout(main_layout)
 
     def init_user_tab(self):
         layout = QVBoxLayout()
+        layout.setContentsMargins(20, 15, 20, 10)
+        layout.setSpacing(20)
 
-        # Заголовок: Введите данные пользователя
+        # === БЛОК: Ввод пользователя ===
         self.user_input_label = QLabel("Введите данные пользователя:")
         layout.addWidget(self.user_input_label)
 
         self.last_name_input = QLineEdit()
         self.last_name_input.setPlaceholderText("Фамилия")
-        layout.addWidget(self.last_name_input)
-
         self.first_name_input = QLineEdit()
         self.first_name_input.setPlaceholderText("Имя")
-        layout.addWidget(self.first_name_input)
-
         self.middle_name_input = QLineEdit()
         self.middle_name_input.setPlaceholderText("Отчество")
-        layout.addWidget(self.middle_name_input)
-
         self.birth_date_input = QDateEdit()
         self.birth_date_input.setCalendarPopup(True)
-        layout.addWidget(self.birth_date_input)
-
         self.gender_combo = QComboBox()
         self.gender_combo.addItems(["мужской", "женский"])
-        layout.addWidget(self.gender_combo)
 
-        # Загрузка подписей
+        for widget in [
+            self.last_name_input, self.first_name_input, self.middle_name_input,
+            self.birth_date_input, self.gender_combo
+        ]:
+            widget.setFixedWidth(400)
+            layout.addWidget(widget, alignment=Qt.AlignCenter)
+
+        # === БЛОК: Загрузка подписей ===
         self.signature_folder_label = QLabel("Загрузите эталонные подписи:")
         layout.addWidget(self.signature_folder_label)
 
         self.train_btn = QPushButton("Выбрать папку")
-        layout.addWidget(self.train_btn)
-
         self.train_confirm_btn = QPushButton("Обучить модель")
-        layout.addWidget(self.train_confirm_btn)
+        self.train_btn.setFixedWidth(200)
+        self.train_confirm_btn.setFixedWidth(200)
+        self.train_btn.setIcon(QIcon("icons/folder.png"))
+        self.train_confirm_btn.setIcon(QIcon("icons/train.png"))
+        self.train_btn.setStyleSheet("font-weight: bold;")
+        self.train_confirm_btn.setStyleSheet("font-weight: bold;")
+
+        h_train = QHBoxLayout()
+        h_train.addStretch()
+        h_train.addWidget(self.train_btn)
+        h_train.addSpacing(20)
+        h_train.addWidget(self.train_confirm_btn)
+        h_train.addStretch()
+        layout.addLayout(h_train)
 
         self.train_status = QTextEdit()
+        self.train_status.setMinimumHeight(120)
         layout.addWidget(self.train_status)
 
-        # Удаление пользователя
+        # === БЛОК: Удаление пользователя ===
         self.delete_user_label = QLabel("Удаление пользователя:")
         layout.addWidget(self.delete_user_label)
 
         self.delete_user_combo = QComboBox()
-        layout.addWidget(self.delete_user_combo)
+        self.delete_user_combo.setFixedWidth(400)
+        layout.addWidget(self.delete_user_combo, alignment=Qt.AlignCenter)
 
         self.delete_user_btn = QPushButton("Удалить пользователя")
+        self.delete_user_btn.setFixedWidth(240)
+        self.delete_user_btn.setStyleSheet("font-weight: bold;")
+        self.delete_user_btn.setIcon(QIcon("icons/delete.png"))
         self.delete_user_btn.clicked.connect(self.delete_user)
-        layout.addWidget(self.delete_user_btn)
+        layout.addWidget(self.delete_user_btn, alignment=Qt.AlignCenter)
 
         self.tab_user.setLayout(layout)
 
     def init_history_tab(self):
         layout = QVBoxLayout()
+        layout.setContentsMargins(20, 15, 20, 10)
+        layout.setSpacing(15)
 
+        # === БЛОК: Фильтр по пользователю ===
         self.history_user_label = QLabel("Фильтр по пользователю:")
         layout.addWidget(self.history_user_label)
 
         self.history_user_combo = QComboBox()
-        layout.addWidget(self.history_user_combo)
+        self.history_user_combo.setFixedWidth(400)
+        self.user_combo.view().setMinimumWidth(400)
+        layout.addWidget(self.history_user_combo, alignment=Qt.AlignCenter)
 
+        # === БЛОК: Фильтр по ID пользователя ===
         self.user_id_label = QLabel("Фильтр по ID пользователя:")
         layout.addWidget(self.user_id_label)
 
         self.user_id_input = QLineEdit()
         self.user_id_input.setPlaceholderText("Введите user_id")
-        layout.addWidget(self.user_id_input)
+        self.user_id_input.setFixedWidth(400)
+        layout.addWidget(self.user_id_input, alignment=Qt.AlignCenter)
 
         self.apply_id_filter_btn = QPushButton("Применить фильтр по ID")
-        layout.addWidget(self.apply_id_filter_btn)
+        self.apply_id_filter_btn.setFixedWidth(250)
+        self.apply_id_filter_btn.setStyleSheet("font-weight: bold;")
+        layout.addWidget(self.apply_id_filter_btn, alignment=Qt.AlignCenter)
 
+        # === Таблица истории ===
         self.history_table = QTableWidget()
-        layout.addWidget(self.history_table)
+        self.history_table.horizontalHeader().setStretchLastSection(True)
+        self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
+        layout.addWidget(self.history_table)
+        self.history_table.horizontalHeader().setStretchLastSection(True)
+        self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+
+        # === Кнопка обновления ===
         self.refresh_history_btn = QPushButton("Обновить таблицу")
-        layout.addWidget(self.refresh_history_btn)
+        self.refresh_history_btn.setIcon(QIcon("icons/refresh.png"))
+        self.refresh_history_btn.setStyleSheet("font-weight: bold;")
+        self.refresh_history_btn.setFixedWidth(220)
+        self.refresh_history_btn.setFixedHeight(35)
+
+        layout.addWidget(self.refresh_history_btn, alignment=Qt.AlignCenter)
 
         self.tab_history.setLayout(layout)
 
+        # Обработчик
         self.apply_id_filter_btn.clicked.connect(self.load_verification_by_id)
 
     def init_settings_tab(self):
-        layout = QFormLayout()
+        main_layout = QVBoxLayout()
+        main_layout.setContentsMargins(20, 20, 20, 20)
 
+        center_widget = QWidget()
+        center_layout = QVBoxLayout()
+        center_layout.setAlignment(Qt.AlignCenter)
+
+        box = QGroupBox()
+        box_layout = QVBoxLayout()
+        box_layout.setSpacing(15)
+
+        # === Заголовок с иконкой ===
+        header_layout = QHBoxLayout()
+        header_layout.setAlignment(Qt.AlignLeft)
+
+        self.settings_title_label = QLabel("⚙ Настройки")
+
+        self.settings_title_label.setStyleSheet("font-size: 14pt; font-weight: bold;")
+        header_layout.addWidget(self.settings_title_label)
+
+        box_layout.addLayout(header_layout)
+
+        # === Язык интерфейса ===
+        lang_layout = QHBoxLayout()
+        self.language_label = QLabel("Язык интерфейса:")
         self.language_combo = QComboBox()
         self.language_combo.addItems(["Русский", "English"])
+        lang_layout.addWidget(self.language_label)
+        lang_layout.addWidget(self.language_combo)
+        box_layout.addLayout(lang_layout)
 
-        self.theme_combo = QComboBox()
-        self.theme_combo.addItem("Светлая", "light")  # userData = "light"
-        self.theme_combo.addItem("Тёмная", "dark")  # userData = "dark"
-
-        self.language_label = QLabel("Язык интерфейса:")
+        # === Тема оформления ===
+        theme_layout = QHBoxLayout()
         self.theme_label = QLabel("Тема оформления:")
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItem("Светлая", "light")
+        self.theme_combo.addItem("Тёмная", "dark")
+        theme_layout.addWidget(self.theme_label)
+        theme_layout.addWidget(self.theme_combo)
+        box_layout.addLayout(theme_layout)
 
-        layout.addRow(self.language_label, self.language_combo)
-        layout.addRow(self.theme_label, self.theme_combo)
-
+        # === Кнопка ===
         self.save_settings_btn = QPushButton("Сохранить настройки")
-        layout.addRow(self.save_settings_btn)
+        self.save_settings_btn.setStyleSheet("font-weight: bold; padding: 6px;")
+        self.save_settings_btn.setFixedWidth(240)
+        box_layout.addWidget(self.save_settings_btn, alignment=Qt.AlignCenter)
 
-        self.tab_settings.setLayout(layout)
+        box.setLayout(box_layout)
+        box.setFixedWidth(400)  # ограничим ширину блока
+
+        center_layout.addWidget(box)
+        center_widget.setLayout(center_layout)
+
+        main_layout.addWidget(center_widget, alignment=Qt.AlignCenter)
+
+        self.tab_settings.setLayout(main_layout)
         self.save_settings_btn.clicked.connect(self.save_ui_config)
 
     def save_ui_config(self):
@@ -437,18 +573,22 @@ class MainWindow(QMainWindow):
             )
 
             # 5. Вывод результата
-            if result == 1:
-                self.result_label.setText("✅ Подпись ПРИНЯТА")
+            lang = self.language_combo.currentText()
+            t = self.translations.get(lang, self.translations["Русский"])
 
+            if result == 1:
+                self.result_label.setText(t["Accepted"])
             else:
-                self.result_label.setText("❌ Подпись ОТКЛОНЕНА")
+                self.result_label.setText(t["Rejected"])
 
             percent = metrics["votes_for"] / metrics["total"] * 100
-            text = f"""Проголосовало "За": {metrics['votes_for']} из {metrics['total']} = {percent:.2f}%
-            Порог принятия: ≥ {int(metrics['threshold'] * 100)}%"""
+            text = (
+                f'{t["votes_for"]} {metrics["votes_for"]} {t["out_of"]} {metrics["total"]} = {percent:.2f}%\n'
+                f'{t["threshold_label"]} ≥ {int(metrics["threshold"] * 100)}%'
+            )
             self.metrics_text.setText(text)
 
-            self.statusBar.showMessage("✅ Проверка завершена")
+            self.statusBar.showMessage(t["Finished"])
 
             # Логирование в verification_logs
             logger = ResultsLogger()
@@ -698,58 +838,164 @@ class MainWindow(QMainWindow):
         theme = self.theme_combo.itemData(self.theme_combo.currentIndex())
         if theme == "dark":
             self.setStyleSheet("""
-                   QWidget {
-                       background-color: #2e2e2e;
-                       color: white;
-                   }
-                   QLineEdit, QTextEdit, QComboBox, QDateEdit {
-                       background-color: #3c3c3c;
-                       color: white;
-                       border: 1px solid #555;
-                   }
-                   QPushButton {
-                       background-color: #444;
-                       color: white;
-                       border: 1px solid #666;
-                   }
-                   QTabWidget::pane {
-                       border: 1px solid #666;
-                   }
-                   QTabBar::tab {
-                       background: #3c3c3c;
-                       color: white;
-                       border: 1px solid #555;
-                       padding: 5px;
-                   }
-                   QTabBar::tab:selected {
-                       background: #5c5c5c;
-                       border-bottom: 2px solid #00bcd4;
-                   }
-                   QHeaderView::section {
-                       background-color: #444;
-                       color: white;
-                       padding: 4px;
-                       border: 1px solid #666;
-                   }
-                   QTableWidget {
-                       gridline-color: #666;
-                       background-color: #2e2e2e;
-                       color: white;
-                       selection-background-color: #555;
-                       selection-color: white;
-                   }
-                   QHeaderView::section {
-                       background-color: #444;
-                       color: white;
-                       border: 1px solid #666;
-                   }
-                   QTableCornerButton::section {
-                       background-color: #444;
-                       border: 1px solid #666;
-                   }
-               """)
+                QWidget {
+                    font-family: 'Segoe UI';
+                    font-size: 10pt;
+                    background-color: #2e2e2e;
+                    color: white;
+                }
+                QLineEdit, QTextEdit, QComboBox, QDateEdit {
+                    background-color: #444;
+                    color: #ffffff;
+                    border: 1px solid #777;
+                    border-radius: 5px;
+                    padding: 4px;
+                }
+                QPushButton {
+                    background-color: #444;
+                    color: white;
+                    border: 1px solid #666;
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                }
+                QPushButton:hover {
+                    background-color: #555;
+                }
+                QPushButton:pressed {
+                    background-color: #666;
+                }
+                QTabWidget::pane {
+                    border: 1px solid #666;
+                }
+                QTabBar::tab {
+                    background: #3c3c3c;
+                    color: white;
+                    border: 1px solid #555;
+                    padding: 6px;
+                }
+                QTabBar::tab:selected {
+                    background: #5c5c5c;
+                    border-bottom: 2px solid #00bcd4;
+                }
+                QHeaderView::section {
+                    background-color: #444;
+                    color: white;
+                    padding: 4px;
+                    border: 1px solid #666;
+                }
+                QTableWidget {
+                    gridline-color: #666;
+                    background-color: #2e2e2e;
+                    color: white;
+                    selection-background-color: #555;
+                    selection-color: white;
+                }
+                QTableCornerButton::section {
+                    background-color: #444;
+                    border: 1px solid #666;
+                }
+                QGroupBox {
+                    border: 1px solid #666;
+                    border-radius: 6px;
+                    margin-top: 10px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin;
+                    subcontrol-position: top left;
+                    padding: 0 5px;
+                    font-weight: bold;
+                    color: white;
+                }
+                QLabel#preview_label {
+                    border: 1px solid #666;
+                    background-color: #3a3a3a;
+                    color: white;
+                }
+                #preview_label {
+                    border: 1px solid #777;
+                    background-color: #3a3a3a;
+                    color: #ccc;
+                }
+                QTextEdit {
+                    color: white;
+                    background-color: #444;
+                    border: 1px solid #777;
+                    border-radius: 5px;
+                    padding: 4px;
+                }
+            """)
         else:
-            self.setStyleSheet("")
+            self.setStyleSheet("""
+                QWidget {
+                    font-family: 'Segoe UI';
+                    font-size: 10pt;
+                }
+                QPushButton {
+                    background-color: #e0e0e0;
+                    border: 1px solid #aaa;
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                }
+                QPushButton:hover {
+                    background-color: #d0d0d0;
+                }
+                QPushButton:pressed {
+                    background-color: #c0c0c0;
+                }
+                QLineEdit, QTextEdit, QComboBox, QDateEdit {
+                    background-color: #ffffff;
+                    border: 1px solid #aaa;
+                    border-radius: 5px;
+                    padding: 4px;
+                }
+                QGroupBox {
+                    border: 1px solid #c0c0c0;
+                    border-radius: 6px;
+                    margin-top: 10px;
+                }
+                QGroupBox::title {
+                    subcontrol-origin: margin;
+                    subcontrol-position: top left;
+                    padding: 0 5px;
+                    font-weight: bold;
+                    color: #2c2c2c;
+                }
+                QTabWidget::pane {
+                    border: 1px solid #ccc;
+                }
+                QTabBar::tab {
+                    background: #f0f0f0;
+                    color: black;
+                    border: 1px solid #ccc;
+                    padding: 6px;
+                }
+                QTabBar::tab:selected {
+                    background: #ffffff;
+                    border-bottom: 2px solid #00bcd4;
+                }
+                QHeaderView::section {
+                    background-color: #eeeeee;
+                    color: black;
+                    padding: 4px;
+                    border: 1px solid #ccc;
+                }
+                QTableWidget {
+                    gridline-color: #ccc;
+                    background-color: #ffffff;
+                    color: black;
+                    selection-background-color: #d0eaff;
+                    selection-color: black;
+                }
+                QTableCornerButton::section {
+                    background-color: #eeeeee;
+                    border: 1px solid #ccc;
+                }
+                #preview_label {
+                    border: 1px solid gray;
+                    background-color: #fafafa;
+                    color: #000;
+                }
+            """)
 
     def apply_language(self):
         lang = self.language_combo.currentText()
@@ -769,15 +1015,13 @@ class MainWindow(QMainWindow):
 
         self.statusBar.showMessage(t["save_status"])
 
-        self.tab_verification.layout().itemAt(0).widget().setText(t["verify_title"])
-        self.tab_verification.layout().itemAt(3).widget().setText(t["select_user"])
-        self.tab_verification.layout().itemAt(7).widget().setText(t["result_label"])
-        self.tab_verification.layout().itemAt(9).widget().setText(t["metrics_label"])
+        self.verify_title_label.setText(t["verify_title"])
+        self.select_user_label.setText(t["select_user"])
 
         self.preview_label.setText(t["preview_placeholder"])
 
         self.result_text_label.setText(t["result_label"])
-        self.metrics_label.setText(t["metrics_label"])
+        #self.metrics_label.setText(t["metrics_label"])
         self.theme_combo.setItemText(0, t.get("theme_light", "Светлая"))
         self.theme_combo.setItemText(1, t.get("theme_dark", "Тёмная"))
         self.apply_language_user_tab(t)
@@ -821,6 +1065,7 @@ class MainWindow(QMainWindow):
 
     def apply_language_settings_tab(self, t):
         self.tabs.setTabText(3, t["tab_settings"])
+        self.settings_title_label.setText(f"⚙️ {t['tab_settings']}")
         self.language_label.setText(t["interface_language"])
         self.theme_label.setText(t["theme"])
         self.save_settings_btn.setText(t["save_settings"])
